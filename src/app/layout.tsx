@@ -5,7 +5,6 @@ import { Inter } from 'next/font/google';
 
 const inter = Inter({
   subsets: ['latin'],
-  variable: '--font-inter',
 });
 
 export const metadata: Metadata = {
@@ -19,9 +18,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${inter.variable} h-full`} suppressHydrationWarning>
+    <html lang="en" className="h-full" suppressHydrationWarning>
       <head />
-      <body className="font-body antialiased h-full bg-background">
+      <body className={`${inter.className} antialiased h-full bg-background`}>
         {children}
         <Toaster />
       </body>
