@@ -10,21 +10,22 @@ import { Skeleton } from '@/components/ui/skeleton';
 
 
 export default function PlayPage({ params }: { params: { id: string } }) {
+  const { id } = params;
   const [data, setData] = useState<{ link: OneTimeLink; file: AudioFile } | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(false);
   const hasLoggedActivity = useRef(false);
 
   useEffect(() => {
-    const linkData = store.getLink(params.id);
+    const linkData = store.getLink(id);
     if (linkData && !linkData.link.used) {
       setData(linkData);
-      store.useLink(params.id);
+      store.useLink(id);
     } else {
       setError(true);
     }
     setIsLoading(false);
-  }, [params.id]);
+  }, [id]);
 
   if (isLoading) {
     return (
