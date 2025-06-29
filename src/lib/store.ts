@@ -33,6 +33,9 @@ class AppStore {
             ...log,
             timestamp: new Date(log.timestamp),
           })),
+          // Ensure new fields have default values for old data
+          transcript: file.transcript || null,
+          isTranscribing: file.isTranscribing || false,
         }));
       }
     } catch (error) {
@@ -72,7 +75,7 @@ class AppStore {
     return this.audioFiles.find(file => file.id === id);
   }
 
-  addAudioFile(name: string, fileName: string, fileUrl: string): void {
+  addAudioFile(name: string, fileName: string, fileUrl: string): AudioFile {
     const newFile: AudioFile = {
       id: crypto.randomUUID(),
       name,
@@ -81,9 +84,29 @@ class AppStore {
       createdAt: new Date(),
       links: [],
       activityLogs: [],
+      transcript: null,
+      isTranscribing: false,
     };
     this.audioFiles.push(newFile);
     this.notify();
+    return newFile;
+  }
+  
+  setTranscribing(fileId: string, isTranscribing: boolean): void {
+    const file = this.getAudioFile(fileId);
+    if (file) {
+      file.isTranscribing = isTranscribing;
+      this.notify();
+    }
+  }
+  
+  addTranscript(fileId: string, transcript: string): void {
+    const file = this.getAudioFile(fileId);
+    if (file) {
+      file.transcript = transcript;
+      file.isTranscribing = false;
+      this.notify();
+    }
   }
 
   deleteAudioFile(id: string): void {

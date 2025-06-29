@@ -20,4 +20,6 @@ export interface AudioFile {
   createdAt: Date;
   links: OneTimeLink[];
   activityLogs: ActivityLog[];
+  transcript?: string | null;
+  isTranscribing?: boolean;
 }
