@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useState, useRef } from 'react';
-import { redirect } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { store } from '@/lib/store';
 import type { AudioFile, OneTimeLink } from '@/types';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -11,6 +11,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 
 export default function PlayPage({ params }: { params: { id: string } }) {
   const { id } = params;
+  const router = useRouter();
   const [data, setData] = useState<{ link: OneTimeLink; file: AudioFile } | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -27,7 +28,13 @@ export default function PlayPage({ params }: { params: { id: string } }) {
     setIsLoading(false);
   }, [id]);
 
-  if (isLoading) {
+  useEffect(() => {
+    if (!isLoading && error) {
+      router.replace('/play/expired');
+    }
+  }, [isLoading, error, router]);
+
+  if (isLoading || error) {
     return (
         <div className="flex min-h-screen items-center justify-center p-4">
             <Card className="w-full max-w-lg">
@@ -42,10 +49,6 @@ export default function PlayPage({ params }: { params: { id: string } }) {
             </Card>
         </div>
     );
-  }
-
-  if (error) {
-    redirect('/play/expired');
   }
   
   const handleContextMenu = (e: React.MouseEvent) => {
