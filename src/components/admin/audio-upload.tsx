@@ -7,7 +7,6 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { store } from '@/lib/store';
 import { UploadCloud } from 'lucide-react';
-import { transcribeAudio } from '@/ai/flows/transcribe-flow';
 
 export default function AudioUpload() {
   const { toast } = useToast();
@@ -48,11 +47,11 @@ export default function AudioUpload() {
       const newBlob = await response.json();
 
       // 2. Add file to local store
-      const newAudioFile = store.addAudioFile(trackName, file.name, newBlob.url);
+      store.addAudioFile(trackName, file.name, newBlob.url);
       
       toast({
         title: 'Upload Successful',
-        description: `"${trackName}" has been added. Transcription started...`,
+        description: `"${trackName}" has been added.`,
       });
       
       // 3. Reset form
@@ -60,25 +59,6 @@ export default function AudioUpload() {
       setFile(null);
       const fileInput = document.getElementById('audio-file') as HTMLInputElement;
       if (fileInput) fileInput.value = "";
-      
-      // 4. Start transcription in the background
-      try {
-        store.setTranscribing(newAudioFile.id, true);
-        const { transcript } = await transcribeAudio({ audioUrl: newBlob.url });
-        store.addTranscript(newAudioFile.id, transcript);
-        toast({
-          title: 'Transcription Complete',
-          description: `"${newAudioFile.name}" has been transcribed.`,
-        });
-      } catch (transcribeError) {
-         console.error("Transcription error:", transcribeError);
-         toast({
-           variant: 'destructive',
-           title: 'Transcription Failed',
-           description: 'The audio file was uploaded, but transcription failed.',
-         });
-         store.setTranscribing(newAudioFile.id, false);
-      }
 
     } catch (error) {
       console.error("Upload error:", error);
