@@ -111,8 +111,8 @@ export default function AudioList({ audioFiles }: AudioListProps) {
             </div>
             <AccordionContent className="bg-muted/30 p-4 rounded-md">
               <Tabs defaultValue="links" className="w-full">
-                <div className="flex justify-between items-center mb-4">
-                    <TabsList>
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-4">
+                    <TabsList className="self-start">
                         <TabsTrigger value="links"><ListMusic className="w-4 h-4 mr-2"/>Links ({file.links.length})</TabsTrigger>
                         <TabsTrigger value="logs"><Activity className="w-4 h-4 mr-2"/>Activity ({file.activityLogs.length})</TabsTrigger>
                     </TabsList>
@@ -122,6 +122,7 @@ export default function AudioList({ audioFiles }: AudioListProps) {
                         setSelectedFileId(file.id);
                         setDialogOpen(true);
                       }}
+                      className="w-full sm:w-auto"
                     >
                       <Link2 className="mr-2 h-4 w-4" />
                       Generate Links

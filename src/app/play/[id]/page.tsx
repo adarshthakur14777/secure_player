@@ -36,7 +36,7 @@ export default function PlayPage({ params }: { params: { id: string } }) {
 
   if (isLoading || error) {
     return (
-        <div className="flex min-h-screen items-center justify-center p-4">
+        <div className="flex min-h-screen items-center justify-center p-4 sm:p-6 md:p-8">
             <Card className="w-full max-w-lg">
                 <CardHeader>
                     <Skeleton className="h-8 w-3/4" />
@@ -60,7 +60,7 @@ export default function PlayPage({ params }: { params: { id: string } }) {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background p-4">
+    <div className="flex min-h-screen items-center justify-center bg-background p-4 sm:p-6 md:p-8">
       {data && (
         <Card className="w-full max-w-lg" onContextMenu={handleContextMenu}>
           <CardHeader>

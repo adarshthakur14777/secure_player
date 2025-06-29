@@ -53,9 +53,9 @@ export default function LinksTable({ links, audioFileId, onDeleteLink }: LinksTa
         <TableHeader>
             <TableRow>
             <TableHead>Link URL</TableHead>
-            <TableHead className="w-[100px] text-center">Status</TableHead>
-            <TableHead className="w-[180px]">Created</TableHead>
-            <TableHead className="w-[150px] text-right">Actions</TableHead>
+            <TableHead className="text-center">Status</TableHead>
+            <TableHead className="whitespace-nowrap">Created</TableHead>
+            <TableHead className="text-right">Actions</TableHead>
             </TableRow>
         </TableHeader>
         <TableBody>
