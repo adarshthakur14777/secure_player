@@ -3,9 +3,54 @@ import type { AudioFile, OneTimeLink, ActivityLog } from '@/types';
 
 type Listener = () => void;
 
+const STORE_KEY = 'whisper_share_store';
+
 class AppStore {
   private audioFiles: AudioFile[] = [];
   private listeners: Set<Listener> = new Set();
+
+  constructor() {
+    this.loadState();
+  }
+
+  private loadState(): void {
+    if (typeof window === 'undefined') {
+      return;
+    }
+    try {
+      const savedState = localStorage.getItem(STORE_KEY);
+      if (savedState) {
+        const parsed = JSON.parse(savedState);
+        // Dates are stringified, need to convert them back
+        this.audioFiles = parsed.map((file: any) => ({
+          ...file,
+          createdAt: new Date(file.createdAt),
+          links: file.links.map((link: any) => ({
+            ...link,
+            createdAt: new Date(link.createdAt),
+          })),
+          activityLogs: file.activityLogs.map((log: any) => ({
+            ...log,
+            timestamp: new Date(log.timestamp),
+          })),
+        }));
+      }
+    } catch (error) {
+      console.error("Failed to load state from localStorage", error);
+      this.audioFiles = [];
+    }
+  }
+
+  private saveState(): void {
+    if (typeof window === 'undefined') {
+      return;
+    }
+    try {
+      localStorage.setItem(STORE_KEY, JSON.stringify(this.audioFiles));
+    } catch (error) {
+      console.error("Failed to save state to localStorage", error);
+    }
+  }
 
   subscribe(listener: Listener): () => void {
     this.listeners.add(listener);
@@ -13,13 +58,14 @@ class AppStore {
   }
 
   private notify(): void {
+    this.saveState();
     this.listeners.forEach(listener => listener());
   }
 
   // --- Audio File Methods ---
 
   getAudioFiles(): AudioFile[] {
-    return [...this.audioFiles].sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+    return [...this.audioFiles].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   }
 
   getAudioFile(id: string): AudioFile | undefined {
