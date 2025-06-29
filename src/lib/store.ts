@@ -72,12 +72,12 @@ class AppStore {
     return this.audioFiles.find(file => file.id === id);
   }
 
-  addAudioFile(name: string, fileName: string): void {
+  addAudioFile(name: string, fileName: string, fileUrl: string): void {
     const newFile: AudioFile = {
       id: crypto.randomUUID(),
       name,
       fileName,
-      fileUrl: `/audio/${fileName}`, // Mock URL
+      fileUrl: fileUrl,
       createdAt: new Date(),
       links: [],
       activityLogs: [],

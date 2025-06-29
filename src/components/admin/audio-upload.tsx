@@ -6,7 +6,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { store } from '@/lib/store';
-import { Progress } from '@/components/ui/progress';
 import { UploadCloud } from 'lucide-react';
 
 export default function AudioUpload() {
@@ -14,7 +13,6 @@ export default function AudioUpload() {
   const [trackName, setTrackName] = useState('');
   const [file, setFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState(0);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -22,7 +20,7 @@ export default function AudioUpload() {
     }
   };
 
-  const handleUpload = (e: React.FormEvent) => {
+  const handleUpload = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!file || !trackName) {
       toast({
@@ -34,32 +32,42 @@ export default function AudioUpload() {
     }
 
     setIsUploading(true);
-    setUploadProgress(0);
 
-    const interval = setInterval(() => {
-      setUploadProgress(prev => {
-        if (prev >= 95) {
-          return prev;
-        }
-        return prev + 10;
+    try {
+      const response = await fetch(`/api/upload?filename=${file.name}`, {
+        method: 'POST',
+        body: file,
       });
-    }, 200);
 
-    setTimeout(() => {
-      clearInterval(interval);
-      setUploadProgress(100);
-      store.addAudioFile(trackName, file.name);
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ message: 'Upload failed' }));
+        throw new Error(errorData.message);
+      }
+
+      const newBlob = await response.json();
+
+      store.addAudioFile(trackName, file.name, newBlob.url);
+      
       toast({
         title: 'Upload Successful',
         description: `"${trackName}" has been added to your library.`,
       });
+      
       setTrackName('');
       setFile(null);
-      // reset file input
       const fileInput = document.getElementById('audio-file') as HTMLInputElement;
-      if(fileInput) fileInput.value = "";
+      if (fileInput) fileInput.value = "";
+      
+    } catch (error) {
+      console.error("Upload error:", error);
+      toast({
+        variant: 'destructive',
+        title: 'Upload Failed',
+        description: error instanceof Error ? error.message : 'An unknown error occurred. Please try again.',
+      });
+    } finally {
       setIsUploading(false);
-    }, 2500);
+    }
   };
 
   return (
@@ -83,12 +91,6 @@ export default function AudioUpload() {
             <Label htmlFor="audio-file">Audio File (MP3, WAV, M4A)</Label>
             <Input id="audio-file" type="file" accept="audio/*" onChange={handleFileChange} disabled={isUploading} />
           </div>
-          {isUploading && (
-            <div className="space-y-2 pt-2">
-              <Label>{`Uploading ${file?.name}...`}</Label>
-              <Progress value={uploadProgress} />
-            </div>
-          )}
           <Button type="submit" className="w-full sm:w-auto" disabled={isUploading}>
             <UploadCloud className="mr-2 h-4 w-4" />
             {isUploading ? 'Uploading...' : 'Upload File'}
